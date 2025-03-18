@@ -21,12 +21,37 @@ def main():
                 break  # Выход из цикла и завершение программы
 
             if choice == "1":
-                A, b = read_matrix(from_file=False)
+                while True:  # Новый цикл для ввода размерности и матрицы
+                    try:
+                        n = int(input("Введите размерность матрицы (n <= 20): "))
+                        if n > 20:
+                            raise ValueError("Размерность матрицы должна быть не более 20!")
+
+                        A = np.zeros((n, n))
+                        b = np.zeros(n)
+
+                        print(
+                            "Введите коэффициенты матрицы A построчно (разделяя числа пробелами, можно использовать запятую или точку для дробных чисел):")
+                        for i in range(n):
+                            A[i] = list(map(lambda x: float(x.replace(",", ".")), input().split()))
+
+                        print("Введите вектор b (можно использовать запятую или точку для дробных чисел):")
+                        b[:] = list(map(lambda x: float(x.replace(",", ".")), input().split()))
+
+                        break  # Выход из цикла, если всё прошло успешно
+                    except Exception as e:
+                        print(f"Произошла ошибка: {e}")
+                        print("Пожалуйста, попробуйте снова.")
+
             elif choice == "2":
-                filename = input("Введите имя файла: ")
-                A, b = read_matrix(from_file=True, filename=filename)
-                if A is None or b is None:  # Проверяем, произошла ли ошибка
-                    continue  # Возвращаемся в начало цикла
+                while True:  # Новый цикл для ввода имени файла
+                    filename = input("Введите имя файла: ")
+                    A, b = read_matrix(from_file=True, filename=filename)
+                    if A is None or b is None:  # Проверяем, произошла ли ошибка
+                        print("Попробуйте снова ввести имя файла.")
+                    else:
+                        break  # Если файл прочитан успешно, выходим из цикла
+
             elif choice == "3":
                 while True:
                     try:
@@ -37,6 +62,7 @@ def main():
                     except ValueError:
                         print("Ошибка: введите целое число.")
                 A, b = generate_random_matrix(n)
+
             else:
                 print("Ошибка: неверный ввод. Пожалуйста, выберите 1, 2, 3 или 4.")
                 continue  # Начинаем цикл заново
