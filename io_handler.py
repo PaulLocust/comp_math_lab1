@@ -21,9 +21,12 @@ def read_matrix(from_file=True, filename=""):
 
                 A, b = data[:, :-1], data[:, -1]
             return A, b
+        except FileNotFoundError:
+            print(f"Ошибка: файл '{filename}' не найден. Попробуйте снова.")
+            return None, None  # Возвращаем None, чтобы обработать ошибку в главной программе
         except Exception as e:
             print("Ошибка при чтении файла:", e)
-            exit(1)
+            return None, None  # Возвращаем None, чтобы обработать ошибку в главной программе
     else:
         while True:
             try:
@@ -46,7 +49,6 @@ def read_matrix(from_file=True, filename=""):
         b[:] = list(map(lambda x: float(x.replace(",", ".")), input().split()))
 
         return A, b
-
 
 def write_results(A_orig, b_orig, determinant, U, x, residuals, b_transformed, filename="results.txt"):
     """Сохраняет результаты в файл в папке results/"""

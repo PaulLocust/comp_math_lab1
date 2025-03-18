@@ -13,6 +13,9 @@ def gaussian_elimination_pure(A, b):
     A = [row[:] for row in A]
     b = b[:]
 
+    # Счётчик обменов строк
+    swap_count = 0
+
     # Прямой ход (приведение к верхнетреугольному виду)
     for i in range(n):
         max_row = i
@@ -24,8 +27,10 @@ def gaussian_elimination_pure(A, b):
             raise ValueError("Матрица вырожденная, решение невозможно.")
 
         # Обмен строк
-        A[i], A[max_row] = A[max_row], A[i]
-        b[i], b[max_row] = b[max_row], b[i]
+        if max_row != i:
+            A[i], A[max_row] = A[max_row], A[i]
+            b[i], b[max_row] = b[max_row], b[i]
+            swap_count += 1  # Увеличиваем счётчик обменов
 
         for j in range(i + 1, n):
             factor = A[j][i] / A[i][i]
@@ -33,10 +38,14 @@ def gaussian_elimination_pure(A, b):
                 A[j][k] -= factor * A[i][k]
             b[j] -= factor * b[i]  # Правильное обновление b
 
-    # Вычисление определителя
+    # Вычисление определителя с учётом числа обменов строк
     determinant = 1
     for i in range(n):
         determinant *= A[i][i]
+    
+    # Если количество обменов нечётное, меняем знак определителя
+    if swap_count % 2 != 0:
+        determinant = -determinant
 
     # Обратный ход для нахождения X
     x = [0] * n
@@ -49,7 +58,6 @@ def gaussian_elimination_pure(A, b):
 
     return determinant, A, x, residuals, b  # Теперь возвращаем изменённое b
 
-
 def gaussian_elimination_numpy(A, b):
     """Решение СЛАУ методом Гаусса с выбором главного элемента с использованием NumPy"""
     n = len(A)
@@ -60,6 +68,9 @@ def gaussian_elimination_numpy(A, b):
     A = A.astype(float)
     b = b.astype(float)
 
+    # Счётчик обменов строк
+    swap_count = 0
+
     for i in range(n):
         # Поиск главного элемента
         max_row = i + np.argmax(np.abs(A[i:, i]))
@@ -67,8 +78,10 @@ def gaussian_elimination_numpy(A, b):
             raise ValueError("Матрица вырожденная, решение невозможно.")
 
         # Обмен строк
-        A[[i, max_row]] = A[[max_row, i]]
-        b[[i, max_row]] = b[[max_row, i]]
+        if max_row != i:
+            A[[i, max_row]] = A[[max_row, i]]
+            b[[i, max_row]] = b[[max_row, i]]
+            swap_count += 1  # Увеличиваем счётчик обменов
 
         # Прямой ход
         for j in range(i + 1, n):
@@ -76,8 +89,12 @@ def gaussian_elimination_numpy(A, b):
             A[j, i:] -= factor * A[i, i:]
             b[j] -= factor * b[i]  # Корректное обновление b
 
-    # Вычисление определителя
+    # Вычисление определителя с учётом числа обменов строк
     determinant = np.prod(np.diag(A))
+
+    # Если количество обменов нечётное, меняем знак определителя
+    if swap_count % 2 != 0:
+        determinant = -determinant
 
     # Обратный ход
     x = np.zeros(n)
@@ -88,3 +105,4 @@ def gaussian_elimination_numpy(A, b):
     residuals = np.dot(A_orig, x) - b_orig  # Используем оригинальные A и b
 
     return determinant, A, x, residuals, b  # Теперь возвращаем b
+
